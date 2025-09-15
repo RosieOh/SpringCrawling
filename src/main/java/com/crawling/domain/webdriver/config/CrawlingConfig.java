@@ -25,14 +25,12 @@ public class CrawlingConfig {
         executor.setAwaitTerminationSeconds(60);
         executor.initialize();
         
-        log.info("크롤링 스레드 풀 설정 완료: core={}, max={}, queue={}", 
-                executor.getCorePoolSize(), executor.getMaxPoolSize(), executor.getQueueCapacity());
-        
         return executor;
     }
     
     @Bean
     public WebDriverManager webDriverManager() {
+
         // WebDriver 자동 관리 설정
         WebDriverManager.chromedriver().setup();
         WebDriverManager.firefoxdriver().setup();
