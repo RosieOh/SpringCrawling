@@ -1,6 +1,6 @@
 package com.crawling.core.aspect;
 
-import com.tspoon.core.annotation.Retryable;
+import com.crawling.core.annotation.Retryable;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -25,7 +25,7 @@ public class RetryAspect {
     /**
      * @Retryable 어노테이션이 적용된 메서드의 재시도를 처리합니다.
      */
-    @Around("@annotation(com.tspoon.core.annotation.Retryable)")
+    @Around("@annotation(com.crawling.core.annotation.Retryable)")
     public Object retry(ProceedingJoinPoint joinPoint) throws Throwable {
         Retryable annotation = getAnnotation(joinPoint, Retryable.class);
         
