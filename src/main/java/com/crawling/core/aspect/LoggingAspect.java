@@ -1,7 +1,7 @@
 package com.crawling.core.aspect;
 
-import com.tspoon.core.annotation.LogExecutionTime;
-import com.tspoon.core.annotation.LogMethod;
+import com.crawling.core.annotation.LogExecutionTime;
+import com.crawling.core.annotation.LogMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -27,7 +27,7 @@ public class LoggingAspect {
     /**
      * @LogExecutionTime 어노테이션이 적용된 메서드의 실행 시간을 측정합니다.
      */
-    @Around("@annotation(com.tspoon.core.annotation.LogExecutionTime)")
+    @Around("@annotation(com.crawling.core.annotation.LogExecutionTime)")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         LogExecutionTime annotation = getAnnotation(joinPoint, LogExecutionTime.class);
         
@@ -50,7 +50,7 @@ public class LoggingAspect {
     /**
      * @LogMethod 어노테이션이 적용된 메서드의 실행을 로깅합니다.
      */
-    @Around("@annotation(com.tspoon.core.annotation.LogMethod)")
+    @Around("@annotation(com.crawling.core.annotation.LogMethod)")
     public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
         LogMethod annotation = getAnnotation(joinPoint, LogMethod.class);
         String methodName = getMethodName(joinPoint);
