@@ -1,5 +1,6 @@
 package com.crawling.domain.webdriver.dto;
 
+import com.crawling.domain.webdriver.enums.CrawlingType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,10 +27,4 @@ public class CrawlingRequest {
     private Integer timeout;
     private Boolean useJavaScript;
     private String userAgent;
-    
-    public enum CrawlingType {
-        SIMPLE,      // Jsoup을 사용한 간단한 HTML 파싱
-        JAVASCRIPT,  // Selenium을 사용한 JavaScript 렌더링
-        API          // REST API 호출
-    }
 }
