@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeautifulSoup 테스트</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/crawling-test.css}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/test">
+                <i class="fas fa-spider me-2"></i>크롤링 테스트
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/test/beautifulsoup">BeautifulSoup</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/webdriver">WebDriver</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/swagger-ui.html" target="_blank">API 문서</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron bg-gradient-success text-white p-4 rounded">
+                    <h1 class="display-5">
+                        <i class="fas fa-code me-3"></i>BeautifulSoup 스타일 테스트
+                    </h1>
+                    <p class="lead">Python의 BeautifulSoup과 유사한 직관적인 API로 웹 페이지를 파싱해보세요</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog me-2"></i>웹사이트 크롤링 설정
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="beautifulsoupForm">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>간단한 크롤링:</strong> URL만 입력하고 "크롤링 시작하기" 버튼을 누르면 자동으로 웹사이트를 크롤링합니다.
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="url" class="form-label">웹사이트 URL <span class="text-danger">*</span></label>
+                                <input type="url" class="form-control" id="url" name="url" 
+                                       placeholder="https://news.naver.com" required>
+                                <div class="form-text">크롤링할 웹사이트의 URL을 입력하세요</div>
+                            </div>
+
+                            <div class="alert alert-light">
+                                <i class="fas fa-cog me-2"></i>
+                                <strong>고급 설정 (선택사항):</strong> 특정 요소만 추출하고 싶다면 CSS 선택자를 입력하세요. 비워두면 자동으로 모든 요소를 추출합니다.
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="titleSelector" class="form-label">제목 선택자 (선택사항)</label>
+                                        <input type="text" class="form-control" id="titleSelector" name="titleSelector" 
+                                               placeholder="h1, .title, #main-title">
+                                        <div class="form-text">제목을 추출할 CSS 선택자</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="contentSelector" class="form-label">내용 선택자 (선택사항)</label>
+                                        <input type="text" class="form-control" id="contentSelector" name="contentSelector" 
+                                               placeholder=".content, .description, p">
+                                        <div class="form-text">내용을 추출할 CSS 선택자</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="linkSelector" class="form-label">링크 선택자 (선택사항)</label>
+                                        <input type="text" class="form-control" id="linkSelector" name="linkSelector" 
+                                               placeholder="a, .link, a[href]">
+                                        <div class="form-text">링크를 추출할 CSS 선택자</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="imageSelector" class="form-label">이미지 선택자 (선택사항)</label>
+                                        <input type="text" class="form-control" id="imageSelector" name="imageSelector" 
+                                               placeholder="img, .image, img[src]">
+                                        <div class="form-text">이미지를 추출할 CSS 선택자</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" id="clearBtn">
+                                    <i class="fas fa-eraser me-2"></i>초기화
+                                </button>
+                                <button type="submit" class="btn btn-success" id="parseBtn">
+                                    <i class="fas fa-play me-2"></i>크롤링 시작하기
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-code me-2"></i>HTML 문자열 직접 파싱 (고급 사용자용)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="htmlForm">
+                            <div class="mb-3">
+                                <label for="htmlContent" class="form-label">HTML 문자열</label>
+                                <textarea class="form-control" id="htmlContent" name="htmlContent" rows="8" 
+                                          placeholder="<html><body><h1>제목</h1><p>내용</p></body></html>"></textarea>
+                                <div class="form-text">파싱할 HTML 문자열을 입력하세요</div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="htmlTitleSelector" class="form-label">제목 선택자</label>
+                                        <input type="text" class="form-control" id="htmlTitleSelector" name="titleSelector" 
+                                               placeholder="h1, h2, h3">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="htmlContentSelector" class="form-label">내용 선택자</label>
+                                        <input type="text" class="form-control" id="htmlContentSelector" name="contentSelector" 
+                                               placeholder="p, .content">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="button" class="btn btn-outline-secondary me-md-2" id="clearHtmlBtn">
+                                    <i class="fas fa-eraser me-2"></i>초기화
+                                </button>
+                                <button type="submit" class="btn btn-info" id="parseHtmlBtn">
+                                    <i class="fas fa-play me-2"></i>HTML 파싱
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>사용 팁
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <h6><i class="fas fa-link me-2"></i>예제 URL</h6>
+                        <div class="mb-3">
+                            <button class="btn btn-sm btn-outline-primary me-2 mb-2" onclick="setExampleUrl('https://news.naver.com')">
+                                네이버 뉴스
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary me-2 mb-2" onclick="setExampleUrl('https://github.com/trending')">
+                                GitHub 트렌딩
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary me-2 mb-2" onclick="setExampleUrl('https://stackoverflow.com/questions')">
+                                Stack Overflow
+                            </button>
+                        </div>
+
+                        <h6><i class="fas fa-search me-2"></i>선택자 예제</h6>
+                        <ul class="small">
+                            <li><code>h1</code> - 모든 h1 태그</li>
+                            <li><code>.class</code> - class가 "class"인 요소</li>
+                            <li><code>#id</code> - id가 "id"인 요소</li>
+                            <li><code>a[href]</code> - href 속성이 있는 링크</li>
+                            <li><code>img[src]</code> - src 속성이 있는 이미지</li>
+                        </ul>
+
+                        <h6><i class="fas fa-cog me-2"></i>자동 추출</h6>
+                        <p class="small">선택자를 입력하지 않으면 자동으로 다음을 추출합니다:</p>
+                        <ul class="small">
+                            <li>페이지 제목</li>
+                            <li>메타데이터</li>
+                            <li>모든 링크</li>
+                            <li>모든 이미지</li>
+                            <li>모든 헤딩</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2"></i>크롤링 결과
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="loading" class="text-center d-none">
+                            <div class="spinner-border text-success" role="status">
+                                <span class="visually-hidden">크롤링 중...</span>
+                            </div>
+                            <p class="mt-2">웹사이트를 크롤링 중입니다. 잠시만 기다려주세요...</p>
+                        </div>
+
+                        <div id="result" class="d-none">
+                            <div id="resultContent"></div>
+                        </div>
+
+                        <div id="error" class="alert alert-danger d-none">
+                            <h6><i class="fas fa-exclamation-triangle me-2"></i>오류 발생</h6>
+                            <div id="errorMessage"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // URL 예제 설정
+        function setExampleUrl(url) {
+            document.getElementById('url').value = url;
+        }
+
+        // 폼 초기화
+        function clearForm() {
+            document.getElementById('beautifulsoupForm').reset();
+            document.getElementById('result').classList.add('d-none');
+            document.getElementById('error').classList.add('d-none');
+        }
+
+        function clearHtmlForm() {
+            document.getElementById('htmlForm').reset();
+            document.getElementById('result').classList.add('d-none');
+            document.getElementById('error').classList.add('d-none');
+        }
+
+        // 결과 표시
+        function showResult(data) {
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            let html = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle me-2"></i>기본 정보</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>URL:</strong> ${data.url || 'N/A'}</li>
+                            <li><strong>제목:</strong> ${data.title || 'N/A'}</li>
+                            <li><strong>상태:</strong> <span class="badge bg-success">${data.status}</span></li>
+                            <li><strong>응답 시간:</strong> ${data.responseTime}ms</li>
+                            <li><strong>파싱 시간:</strong> ${new Date(data.crawledAt).toLocaleString()}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-bar me-2"></i>통계</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>링크 수:</strong> ${data.links ? data.links.length : 0}</li>
+                            <li><strong>이미지 수:</strong> ${data.images ? data.images.length : 0}</li>
+                            <li><strong>헤딩 수:</strong> ${data.headings ? data.headings.length : 0}</li>
+                            <li><strong>메타데이터 수:</strong> ${data.metaTags ? Object.keys(data.metaTags).length : 0}</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+            if (data.extractedData && Object.keys(data.extractedData).length > 0) {
+                html += `
+                    <hr>
+                    <h6><i class="fas fa-database me-2"></i>추출된 데이터</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>선택자</th>
+                                    <th>결과</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                for (const [key, value] of Object.entries(data.extractedData)) {
+                    const displayValue = Array.isArray(value) ? value.join(', ') : value;
+                    html += `
+                        <tr>
+                            <td><code>${key}</code></td>
+                            <td>${displayValue || 'N/A'}</td>
+                        </tr>
+                    `;
+                }
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            if (data.links && data.links.length > 0) {
+                html += `
+                    <hr>
+                    <h6><i class="fas fa-link me-2"></i>추출된 링크</h6>
+                    <div class="row">
+                `;
+                
+                data.links.slice(0, 10).forEach(link => {
+                    html += `
+                        <div class="col-md-6 mb-2">
+                            <a href="${link}" target="_blank" class="text-decoration-none">
+                                <i class="fas fa-external-link-alt me-1"></i>${link}
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                if (data.links.length > 10) {
+                    html += `<div class="col-12"><small class="text-muted">... 및 ${data.links.length - 10}개 더</small></div>`;
+                }
+                
+                html += `</div>`;
+            }
+
+            if (data.images && data.images.length > 0) {
+                html += `
+                    <hr>
+                    <h6><i class="fas fa-image me-2"></i>추출된 이미지</h6>
+                    <div class="row">
+                `;
+                
+                data.images.slice(0, 6).forEach(image => {
+                    html += `
+                        <div class="col-md-4 mb-2">
+                            <img src="${image}" class="img-thumbnail" style="max-width: 100px; max-height: 100px;" 
+                                 onerror="this.style.display='none'">
+                        </div>
+                    `;
+                });
+                
+                if (data.images.length > 6) {
+                    html += `<div class="col-12"><small class="text-muted">... 및 ${data.images.length - 6}개 더</small></div>`;
+                }
+                
+                html += `</div>`;
+            }
+
+            resultContent.innerHTML = html;
+            resultDiv.classList.remove('d-none');
+        }
+
+        // 오류 표시
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('error').classList.remove('d-none');
+        }
+
+        // BeautifulSoup 폼 제출
+        document.getElementById('beautifulsoupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // 로딩 표시
+            document.getElementById('loading').classList.remove('d-none');
+            document.getElementById('result').classList.add('d-none');
+            document.getElementById('error').classList.add('d-none');
+            
+            try {
+                const response = await fetch('/test/beautifulsoup/parse', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('loading').classList.add('d-none');
+                
+                if (result.success) {
+                    showResult(result.data);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                document.getElementById('loading').classList.add('d-none');
+                showError('네트워크 오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        // HTML 폼 제출
+        document.getElementById('htmlForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            if (!data.htmlContent.trim()) {
+                showError('HTML 문자열을 입력해주세요.');
+                return;
+            }
+            
+            // 로딩 표시
+            document.getElementById('loading').classList.remove('d-none');
+            document.getElementById('result').classList.add('d-none');
+            document.getElementById('error').classList.add('d-none');
+            
+            try {
+                const response = await fetch('/test/beautifulsoup/parse-html', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('loading').classList.add('d-none');
+                
+                if (result.success) {
+                    showResult(result.data);
+                } else {
+                    showError(result.error);
+                }
+            } catch (error) {
+                document.getElementById('loading').classList.add('d-none');
+                showError('네트워크 오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        // 초기화 버튼
+        document.getElementById('clearBtn').addEventListener('click', clearForm);
+        document.getElementById('clearHtmlBtn').addEventListener('click', clearHtmlForm);
+    </script>
+</body>
+</html>

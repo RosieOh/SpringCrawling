@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크롤링 결과 조회</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/crawling-test.css}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/test">
+                <i class="fas fa-spider me-2"></i>크롤링 테스트
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/beautifulsoup">BeautifulSoup</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/webdriver">WebDriver</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/test/results">결과 조회</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/results/stats">통계</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/swagger-ui.html" target="_blank">API 문서</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron bg-gradient-info text-white p-4 rounded">
+                    <h1 class="display-5">
+                        <i class="fas fa-database me-3"></i>크롤링 결과 조회
+                    </h1>
+                    <p class="lead">저장된 크롤링 결과를 조회하고 관리할 수 있습니다</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">
+                            <i class="fas fa-database me-2"></i>전체 결과
+                        </h5>
+                        <h3 class="text-primary" th:text="${stats.totalCount}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-success">
+                            <i class="fas fa-check-circle me-2"></i>성공
+                        </h5>
+                        <h3 class="text-success" th:text="${stats.successCount}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-danger">
+                            <i class="fas fa-times-circle me-2"></i>실패
+                        </h5>
+                        <h3 class="text-danger" th:text="${stats.errorCount}">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title text-info">
+                            <i class="fas fa-clock me-2"></i>평균 응답시간
+                        </h5>
+                        <h3 class="text-info" th:text="${stats.averageResponseTime != null ? #numbers.formatDecimal(stats.averageResponseTime, 1, 1) + 'ms' : 'N/A'}">N/A</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 필터 및 검색 -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-filter me-2"></i>필터 및 검색
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-3">
+                                <label for="type" class="form-label">크롤링 타입</label>
+                                <select class="form-select" id="type" name="type">
+                                    <option value="">전체</option>
+                                    <option value="SIMPLE" th:selected="${currentType == 'SIMPLE'}">SIMPLE</option>
+                                    <option value="JAVASCRIPT" th:selected="${currentType == 'JAVASCRIPT'}">JAVASCRIPT</option>
+                                    <option value="API" th:selected="${currentType == 'API'}">API</option>
+                                    <option value="BEAUTIFULSOUP" th:selected="${currentType == 'BEAUTIFULSOUP'}">BEAUTIFULSOUP</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="status" class="form-label">상태</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="">전체</option>
+                                    <option value="SUCCESS" th:selected="${currentStatus == 'SUCCESS'}">성공</option>
+                                    <option value="ERROR" th:selected="${currentStatus == 'ERROR'}">실패</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="search" class="form-label">검색</label>
+                                <div class="input-group">
+                                    <select class="form-select" name="field" style="max-width: 120px;">
+                                        <option value="title" th:selected="${currentField == 'title'}">제목</option>
+                                        <option value="content" th:selected="${currentField == 'content'}">내용</option>
+                                    </select>
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           th:value="${currentSearch}" placeholder="검색어 입력">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-2"></i>검색
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결과 목록 -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-list me-2"></i>크롤링 결과 목록
+                        </h5>
+                        <span class="badge bg-secondary" th:text="'총 ' + ${results.totalElements} + '개'">총 0개</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:if="${results.empty}" class="text-center p-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">크롤링 결과가 없습니다.</p>
+                            <a href="/test" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>크롤링 시작하기
+                            </a>
+                        </div>
+                        
+                        <div th:if="${!results.empty}" class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>URL</th>
+                                        <th>제목</th>
+                                        <th>타입</th>
+                                        <th>상태</th>
+                                        <th>응답시간</th>
+                                        <th>생성일</th>
+                                        <th>액션</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="result : ${results.content}">
+                                        <td th:text="${result.id}">1</td>
+                                        <td>
+                                            <a th:href="${result.url}" target="_blank" class="text-decoration-none" 
+                                               th:text="${#strings.abbreviate(result.url, 50)}">URL</a>
+                                        </td>
+                                        <td th:text="${#strings.abbreviate(result.title, 30)}">제목</td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${result.crawlingType == 'SIMPLE'} ? 'bg-primary' : 
+                                                                  ${result.crawlingType == 'JAVASCRIPT'} ? 'bg-success' : 
+                                                                  ${result.crawlingType == 'API'} ? 'bg-info' : 'bg-warning'"
+                                                  th:text="${result.crawlingType}">SIMPLE</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${result.status == 'SUCCESS'} ? 'bg-success' : 'bg-danger'"
+                                                  th:text="${result.status}">SUCCESS</span>
+                                        </td>
+                                        <td th:text="${result.responseTime} + 'ms'">1000ms</td>
+                                        <td th:text="${#temporals.format(result.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{/test/results/{id}(id=${result.id})}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <button class="btn btn-outline-danger btn-sm" 
+                                                        onclick="deleteResult(${result.id})">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="row mt-4" th:if="${!results.empty}">
+            <div class="col-12">
+                <nav aria-label="페이지 네비게이션">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/test/results(page=${currentPage - 1}, type=${currentType}, status=${currentStatus}, search=${currentSearch}, field=${currentField})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}" 
+                            th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/test/results(page=${pageNum}, type=${currentType}, status=${currentStatus}, search=${currentSearch}, field=${currentField})}"
+                               th:text="${pageNum + 1}">1</a>
+                        </li>
+                        
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/test/results(page=${currentPage + 1}, type=${currentType}, status=${currentStatus}, search=${currentSearch}, field=${currentField})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- 삭제 확인 모달 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">크롤링 결과 삭제</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    정말로 이 크롤링 결과를 삭제하시겠습니까?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let deleteId = null;
+        
+        function deleteResult(id) {
+            deleteId = id;
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+        
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            if (deleteId) {
+                fetch(`/test/results/${deleteId}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('삭제에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('삭제 중 오류가 발생했습니다.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크롤링 테스트 페이지</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/crawling-test.css}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/test">
+                <i class="fas fa-spider me-2"></i>크롤링 테스트
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test">홈</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/beautifulsoup">BeautifulSoup</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/webdriver">WebDriver</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/results">결과 조회</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/test/results/stats">통계</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/swagger-ui.html" target="_blank">API 문서</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron bg-gradient-primary text-white p-5 rounded">
+                    <h1 class="display-4">
+                        <i class="fas fa-spider me-3"></i>크롤링 테스트 페이지
+                    </h1>
+                    <p class="lead">다양한 크롤링 기능을 테스트하고 비교해보세요</p>
+                    <hr class="my-4">
+                    <p>BeautifulSoup 스타일과 WebDriver 기반 크롤링을 웹 인터페이스에서 쉽게 테스트할 수 있습니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-code me-2"></i>BeautifulSoup 스타일
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Python의 BeautifulSoup과 유사한 직관적인 API를 제공합니다.</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>직관적인 선택자 사용</li>
+                            <li><i class="fas fa-check text-success me-2"></i>자동화된 데이터 추출</li>
+                            <li><i class="fas fa-check text-success me-2"></i>요소 상세 정보 제공</li>
+                            <li><i class="fas fa-check text-success me-2"></i>HTML 문자열 직접 파싱</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/test/beautifulsoup" class="btn btn-success">
+                            <i class="fas fa-play me-2"></i>테스트 시작
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-car me-2"></i>WebDriver 기반
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Jsoup, Selenium, API 호출을 통한 다양한 크롤링 방식을 제공합니다.</p>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-info me-2"></i>Jsoup (간단한 HTML 파싱)</li>
+                            <li><i class="fas fa-check text-info me-2"></i>Selenium (JavaScript 렌더링)</li>
+                            <li><i class="fas fa-check text-info me-2"></i>API 호출 (REST API)</li>
+                            <li><i class="fas fa-check text-info me-2"></i>배치 처리 지원</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <a href="/test/webdriver" class="btn btn-info">
+                            <i class="fas fa-play me-2"></i>테스트 시작
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>사용 팁
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-link me-2"></i>URL 입력</h6>
+                                <p class="small">크롤링할 웹사이트의 URL을 정확히 입력하세요. (예: https://example.com)</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-search me-2"></i>선택자 사용</h6>
+                                <p class="small">CSS 선택자를 사용하여 원하는 요소를 정확히 선택하세요. (예: .class, #id, tag)</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h6><i class="fas fa-clock me-2"></i>타임아웃 설정</h6>
+                                <p class="small">느린 웹사이트의 경우 타임아웃을 늘려보세요. (기본값: 15초)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-book me-2"></i>예제 사이트
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h6>뉴스 사이트</h6>
+                                <ul class="list-unstyled small">
+                                    <li><a href="https://news.naver.com" target="_blank">네이버 뉴스</a></li>
+                                    <li><a href="https://news.ycombinator.com" target="_blank">Hacker News</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
+                                <h6>개발자 사이트</h6>
+                                <ul class="list-unstyled small">
+                                    <li><a href="https://github.com/trending" target="_blank">GitHub 트렌딩</a></li>
+                                    <li><a href="https://stackoverflow.com/questions" target="_blank">Stack Overflow</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
+                                <h6>커뮤니티</h6>
+                                <ul class="list-unstyled small">
+                                    <li><a href="https://www.reddit.com/r/Python/" target="_blank">Reddit Python</a></li>
+                                    <li><a href="https://www.reddit.com/r/programming/" target="_blank">Reddit Programming</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-3">
+                                <h6>API 테스트</h6>
+                                <ul class="list-unstyled small">
+                                    <li><a href="https://jsonplaceholder.typicode.com/posts" target="_blank">JSONPlaceholder</a></li>
+                                    <li><a href="https://httpbin.org/json" target="_blank">HTTPBin JSON</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 크롤링 테스트 페이지. Spring Boot + Thymeleaf로 제작되었습니다.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

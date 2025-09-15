@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크롤링 결과 상세 - Crawling Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/crawling-test.css" rel="stylesheet">
+    <style>
+        .json-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .json-key {
+            color: #d73a49;
+            font-weight: bold;
+        }
+        .json-string {
+            color: #032f62;
+        }
+        .json-number {
+            color: #005cc5;
+        }
+        .json-boolean {
+            color: #e36209;
+        }
+        .json-null {
+            color: #6a737d;
+            font-style: italic;
+        }
+        .content-preview {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .badge-type {
+            font-size: 0.75rem;
+        }
+        .metadata-item {
+            background-color: #f8f9fa;
+            border-left: 3px solid #007bff;
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- 헤더 -->
+        <div class="row">
+            <div class="col-12">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+                    <div class="container-fluid">
+                        <a class="navbar-brand" href="/test">
+                            <i class="fas fa-spider"></i> Crawling Test
+                        </a>
+                        <div class="navbar-nav ms-auto">
+                            <a class="nav-link" href="/test">
+                                <i class="fas fa-home"></i> 홈
+                            </a>
+                            <a class="nav-link" href="/test/results">
+                                <i class="fas fa-list"></i> 결과 목록
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-file-alt"></i> 크롤링 결과 상세
+                        </h4>
+                        <div>
+                            <span class="badge badge-type" 
+                                  th:classappend="${result.crawlingType == 'BEAUTIFULSOUP'} ? 'bg-success' : 
+                                                ${result.crawlingType == 'SIMPLE'} ? 'bg-primary' : 
+                                                ${result.crawlingType == 'JAVASCRIPT'} ? 'bg-warning' : 'bg-info'"
+                                  th:text="${result.crawlingType}">SIMPLE</span>
+                            <span class="badge badge-type ms-1" 
+                                  th:classappend="${result.status == 'SUCCESS'} ? 'bg-success' : 'bg-danger'"
+                                  th:text="${result.status}">SUCCESS</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- 기본 정보 -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-link"></i> 기본 정보</h5>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td><strong>URL:</strong></td>
+                                        <td><a th:href="${result.url}" target="_blank" th:text="${result.url}">https://example.com</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>제목:</strong></td>
+                                        <td th:text="${result.title}">페이지 제목</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>응답 시간:</strong></td>
+                                        <td th:text="${result.responseTime} + 'ms'">1000ms</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>생성 시간:</strong></td>
+                                        <td th:text="${#temporals.format(result.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</td>
+                                    </tr>
+                                    <tr th:if="${result.errorMessage}">
+                                        <td><strong>오류 메시지:</strong></td>
+                                        <td class="text-danger" th:text="${result.errorMessage}">오류 메시지</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-chart-bar"></i> 통계</h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title">콘텐츠 길이</h6>
+                                                <p class="card-text" th:text="${#strings.length(result.content)} + '자'">1000자</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="card bg-light">
+                                            <div class="card-body text-center">
+                                                <h6 class="card-title">HTML 길이</h6>
+                                                <p class="card-text" th:text="${#strings.length(result.html)} + '자'">5000자</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 세분화된 텍스트 내용 -->
+                        <div class="row mb-4" th:if="${result.mainText or result.description or result.articleText or result.navigationText or result.footerText}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-file-text"></i> 세분화된 텍스트 내용</h5>
+                                <div class="accordion" id="textAccordion">
+                                    <!-- 메인 텍스트 -->
+                                    <div class="accordion-item" th:if="${result.mainText}">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#mainText">
+                                                <i class="fas fa-file-alt me-2"></i>메인 텍스트 <span class="badge bg-primary ms-2" th:text="${#strings.length(result.mainText)} + '자'">1000자</span>
+                                            </button>
+                                        </h2>
+                                        <div id="mainText" class="accordion-collapse collapse show" data-bs-parent="#textAccordion">
+                                            <div class="accordion-body">
+                                                <pre th:text="${result.mainText}" class="text-wrap" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">메인 텍스트 내용</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 설명/요약 -->
+                                    <div class="accordion-item" th:if="${result.description}">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#description">
+                                                <i class="fas fa-info-circle me-2"></i>설명/요약 <span class="badge bg-info ms-2" th:text="${#strings.length(result.description)} + '자'">200자</span>
+                                            </button>
+                                        </h2>
+                                        <div id="description" class="accordion-collapse collapse" data-bs-parent="#textAccordion">
+                                            <div class="accordion-body">
+                                                <p th:text="${result.description}" class="text-wrap">설명/요약 내용</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 기사/본문 -->
+                                    <div class="accordion-item" th:if="${result.articleText}">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#articleText">
+                                                <i class="fas fa-newspaper me-2"></i>기사/본문 <span class="badge bg-success ms-2" th:text="${#strings.length(result.articleText)} + '자'">2000자</span>
+                                            </button>
+                                        </h2>
+                                        <div id="articleText" class="accordion-collapse collapse" data-bs-parent="#textAccordion">
+                                            <div class="accordion-body">
+                                                <pre th:text="${result.articleText}" class="text-wrap" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">기사/본문 내용</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 네비게이션 -->
+                                    <div class="accordion-item" th:if="${result.navigationText}">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navigationText">
+                                                <i class="fas fa-bars me-2"></i>네비게이션 <span class="badge bg-warning ms-2" th:text="${#strings.length(result.navigationText)} + '자'">100자</span>
+                                            </button>
+                                        </h2>
+                                        <div id="navigationText" class="accordion-collapse collapse" data-bs-parent="#textAccordion">
+                                            <div class="accordion-body">
+                                                <pre th:text="${result.navigationText}" class="text-wrap" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">네비게이션 내용</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 푸터 -->
+                                    <div class="accordion-item" th:if="${result.footerText}">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#footerText">
+                                                <i class="fas fa-flag me-2"></i>푸터 <span class="badge bg-secondary ms-2" th:text="${#strings.length(result.footerText)} + '자'">50자</span>
+                                            </button>
+                                        </h2>
+                                        <div id="footerText" class="accordion-collapse collapse" data-bs-parent="#textAccordion">
+                                            <div class="accordion-body">
+                                                <pre th:text="${result.footerText}" class="text-wrap" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">푸터 내용</pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 추출된 데이터 -->
+                        <div class="row mb-4" th:if="${result.extractedData}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-database"></i> 추출된 데이터</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.extractedData, '{', '{\n  '), ',', ',\n  ')}">JSON 데이터</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 메타데이터 -->
+                        <div class="row mb-4" th:if="${result.metadata}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-tags"></i> 메타데이터</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.metadata, '{', '{\n  '), ',', ',\n  ')}">메타데이터</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 링크 정보 -->
+                        <div class="row mb-4" th:if="${result.links}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-external-link-alt"></i> 링크 정보</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.links, '[', '[\n  '), ',', ',\n  ')}">링크 데이터</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 이미지 정보 -->
+                        <div class="row mb-4" th:if="${result.images}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-images"></i> 이미지 정보</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.images, '[', '[\n  '), ',', ',\n  ')}">이미지 데이터</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 헤딩 정보 -->
+                        <div class="row mb-4" th:if="${result.headings}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-heading"></i> 헤딩 정보</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.headings, '[', '[\n  '), ',', ',\n  ')}">헤딩 데이터</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 셀렉터 결과 -->
+                        <div class="row mb-4" th:if="${result.selectorResults}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-search"></i> 셀렉터 결과</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.selectorResults, '{', '{\n  '), ',', ',\n  ')}">셀렉터 결과</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 속성 결과 -->
+                        <div class="row mb-4" th:if="${result.attributeResults}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-list-ul"></i> 속성 결과</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.attributeResults, '{', '{\n  '), ',', ',\n  ')}">속성 결과</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 요소 정보 -->
+                        <div class="row mb-4" th:if="${result.elements}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-code"></i> 요소 정보</h5>
+                                <div class="json-container">
+                                    <pre th:text="${#strings.replace(#strings.replace(result.elements, '[', '[\n  '), ',', ',\n  ')}">요소 데이터</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 콘텐츠 미리보기 -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5><i class="fas fa-file-text"></i> 콘텐츠 미리보기</h5>
+                                <div class="content-preview" th:text="${result.content}">페이지 콘텐츠...</div>
+                            </div>
+                        </div>
+
+                        <!-- HTML 미리보기 -->
+                        <div class="row mb-4" th:if="${result.html}">
+                            <div class="col-12">
+                                <h5><i class="fas fa-code"></i> HTML 미리보기</h5>
+                                <div class="content-preview" th:text="${result.html}">HTML 코드...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <a href="/test/results" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> 목록으로
+                            </a>
+                            <div>
+                                <button class="btn btn-outline-primary" onclick="copyToClipboard()">
+                                    <i class="fas fa-copy"></i> 복사
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="deleteResult([[${result.id}]])">
+                                    <i class="fas fa-trash"></i> 삭제
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyToClipboard() {
+            const content = document.querySelector('.card-body').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('클립보드에 복사되었습니다.');
+            });
+        }
+
+        function deleteResult(id) {
+            if (confirm('정말로 이 결과를 삭제하시겠습니까?')) {
+                fetch('/api/crawling/results/' + id, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('삭제되었습니다.');
+                        window.location.href = '/test/results';
+                    } else {
+                        alert('삭제에 실패했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('삭제 중 오류가 발생했습니다.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
